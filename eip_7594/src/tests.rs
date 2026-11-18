@@ -3,16 +3,34 @@ use std::collections::HashSet;
 use duplicate::duplicate_item;
 use serde::Deserialize;
 use spec_test_utils::Case;
+use ssz::Hc;
 use test_generator::test_resources;
 use types::{
     config::Config,
     fulu::primitives::{ColumnIndex, CustodyIndex},
+    gloas::containers::{BeaconBlock, SignedBeaconBlock},
     nonstandard::Phase,
     phase0::primitives::NodeId,
     preset::{Mainnet, Minimal, Preset},
 };
 
-use crate::{compute_columns_for_custody_group, get_custody_groups};
+use crate::{
+    compute_columns_for_custody_group, construct_data_column_sidecars, get_custody_groups,
+};
+
+#[test]
+fn gloas_block_without_blobs_has_no_data_column_sidecars() {
+    let block = SignedBeaconBlock {
+        message: Hc::new(BeaconBlock::<Minimal>::default()),
+        signature: Default::default(),
+    }
+    .into();
+
+    let sidecars =
+        construct_data_column_sidecars(&block, &[]).expect("sidecar construction should succeed");
+
+    assert!(sidecars.is_empty());
+}
 
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]

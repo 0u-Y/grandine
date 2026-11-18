@@ -336,6 +336,10 @@ fn get_data_column_sidecars_post_gloas<P: Preset>(
     slot: Slot,
     cells_and_kzg_proofs: &[CellsAndKzgProofs<P>],
 ) -> Result<Vec<Arc<DataColumnSidecar<P>>>> {
+    if cells_and_kzg_proofs.is_empty() {
+        return Ok(vec![]);
+    }
+
     let blob_count = cells_and_kzg_proofs.len();
 
     let mut sidecars = vec![];
